@@ -25,8 +25,8 @@ func newProject(path, moduleName string) project {
 	s.addFile("server.go", "server.tmpl")
 	s.addFile("server_test.go", "server_test.tmpl")
 
-	subs := f.addFolder("subscribers")
-	subs.addFile("subscribers.go", "subscribers.tmpl")
+	//subs := f.addFolder("subscribers")
+	//subs.addFile("subscribers.go", "subscribers.tmpl")
 
 	cmd := f.addFolder(name)
 	cmd.addFile("main.go", "cmd_main.tmpl")
