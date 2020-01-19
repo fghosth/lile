@@ -1,0 +1,33 @@
+package main
+
+import (
+	_ "net/http/pprof"
+
+	"github.com/fghosth/lile"
+	"github.com/lileio/logr"
+	"github.com/lileio/fromenv"
+	"github.com/lileio/pubsub/v2"
+	"github.com/lileio/pubsub/v2/middleware/defaults"
+	"google.golang.org/grpc"
+	"{{ .ModuleName }}"
+	"{{ .ModuleName }}/server"
+	"{{ .ModuleName }}/{{ .Name }}/cmd"
+)
+
+func main() {
+	logr.SetLevelFromEnv()
+	s := &server.{{ .CamelCaseName }}Server{}
+
+	lile.Name("{{ .Name }}")
+	lile.Server(func(g *grpc.Server) {
+		{{ .Name }}.Register{{ .CamelCaseName }}Server(g, s)
+	})
+
+	pubsub.SetClient(&pubsub.Client{
+		ServiceName: lile.GlobalService().Name,
+		Provider:    fromenv.PubSubProvider(),
+		Middleware:  defaults.Middleware,
+	})
+
+	cmd.Execute()
+}
