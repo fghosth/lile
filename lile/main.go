@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lileio/lile/v2/lile/cmd"
+	"github.com/fghosth/lile/lile/cmd"
 )
 
 func main() {
