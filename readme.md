@@ -35,9 +35,7 @@ $ go get -u github.com/fghosth/lile/...
 
 ### 入门
 
-通过执行`lile run`和一个短文件路径生成一个新的服务。
-
-Lilek可以自动根据`username/service`生成一个完整的路径到`$GOPATH`下的`github.com`中。
+Lilek可以自动根据`username/service`生成一个完整的路径。
 
 ```
 $ lile new --name users
@@ -75,7 +73,8 @@ cp lile /usr/local/bin
 ## 安装 protoc-gen-lile-server插件
 ```bash
  cd protoc-gen-lile-server
- cp /usr/local/bin
+ go build
+ cp protoc-gen-lile-server /usr/local/bin
 ```
 ## 生成pb文件
 ```bash
