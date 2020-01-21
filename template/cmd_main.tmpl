@@ -9,6 +9,10 @@ import (
 	"{{ .ModuleName }}"
 	"{{ .ModuleName }}/server"
 	"{{ .ModuleName }}/{{ .Name }}/cmd"
+
+	"context"
+    "log"
+    "github.com/grpc-ecosystem/grpc-gateway/runtime"
 )
 
 func main() {
