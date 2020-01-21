@@ -1,3 +1,19 @@
+
+Lile是可以帮助您快速创建基于gRPC通讯，或者可以通过[gateway](https://github.com/grpc-ecosystem/grpc-gateway)创建通讯结构
+
+Lile主要是用于过创建基本结构，测试示例，Dockerfile，Makefile等基础骨架。
+
+Lile也是一个简单的服务生成器，扩展了基本的gRPC服务器，包括诸如指标（如[Prometheus](prometheus.io)）。
+
+### 功能如下：
+* 根据proto文件自动生成服务端代码及单元测试
+* tls模式下同一端口https，grpc可同时访问
+* 如果有定义grpc-gateway相关，可生成swagger文档
+* 链路追踪
+
+
+
+
 lile 改编自https://github.com/lileio/lile
 
 改进如下：
@@ -6,13 +22,6 @@ lile 改编自https://github.com/lileio/lile
 3. 增加swagger文档生成
 4. 增加jaeger链路追踪 （待实现）
 5. proto插件bug修正
-
-Lile是可以帮助您快速创建基于gRPC通讯，或者可以通过[gateway](https://github.com/grpc-ecosystem/grpc-gateway)创建通讯结构
-
-Lile主要是用于过创建基本结构，测试示例，Dockerfile，Makefile等基础骨架。
-
-Lile也是一个简单的服务生成器，扩展了基本的gRPC服务器，包括诸如指标（如[Prometheus](prometheus.io)）。
-
 
 ### 安装
 
@@ -68,7 +77,10 @@ cp lile /usr/local/bin
  cd protoc-gen-lile-server
  cp /usr/local/bin
 ```
-
+## 生成pb文件
+```bash
+make proto
+```
 ## 创建服务
 
 Lile使用生成器来快速生成新的Lile服务。
