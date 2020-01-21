@@ -1,14 +1,18 @@
-Lile是可以帮助您快速创建基于gRPC通讯，或者可以通过[gateway](https://github.com/grpc-ecosystem/grpc-gateway)创建REST通讯的发布订阅服务的一个生成器和工具集。
+lile 改编自https://github.com/lileio/lile
+
+改进如下：
+1. 去除google的消息订阅，这个国内没法用
+2. 增加tls访问，可以同一端口grpc，https自动协议判断。
+3. 增加swagger文档生成
+4. 增加jaeger链路追踪 （待实现）
+5. proto插件bug修正
+
+Lile是可以帮助您快速创建基于gRPC通讯，或者可以通过[gateway](https://github.com/grpc-ecosystem/grpc-gateway)创建通讯结构
 
 Lile主要是用于过创建基本结构，测试示例，Dockerfile，Makefile等基础骨架。
 
-Lile也是一个简单的服务生成器，扩展了基本的gRPC服务器，包括诸如指标（如[Prometheus](prometheus.io)），跟踪（如[Zipkin](zipkin.io)）和发布订阅（如[Google PubSub](https://cloud.google.com/pubsub/docs/overview)等可插拔选项。
+Lile也是一个简单的服务生成器，扩展了基本的gRPC服务器，包括诸如指标（如[Prometheus](prometheus.io)）。
 
-Lile在的Slack上的[Gopher Slack](https://invite.slack.golangbridge.org/) 交流渠道[#lile](https://gophers.slack.com/messages/C6RHLV3LN)
-
-[![Build Status](https://travis-ci.org/lileio/lile.svg?branch=master)](https://travis-ci.org/lileio/lile) [![GoDoc](https://godoc.org/github.com/lileio/lile?status.svg)](https://godoc.org/github.com/lileio/lile) [![Go Report Card](https://goreportcard.com/badge/github.com/lileio/lile)](https://goreportcard.com/report/github.com/lileio/lile) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
-
-[![asciicast](https://asciinema.org/a/rLAGV6nsdBreyWgXtb6bgL3Hb.png)](https://asciinema.org/a/rLAGV6nsdBreyWgXtb6bgL3Hb)
 
 ### 安装
 
@@ -27,7 +31,7 @@ $ go get -u github.com/fghosth/lile/...
 Lilek可以自动根据`username/service`生成一个完整的路径到`$GOPATH`下的`github.com`中。
 
 ```
-$ lile new users
+$ lile new --name users
 ```
 
 # 指南
@@ -40,11 +44,7 @@ $ lile new users
 - [使用生成的命令行](#使用生成的命令行)
 - [自定义命令行](#自定义命令行)
 - [暴露Prometheus指标](#暴露Prometheus采集指标)
-- [发布和订阅](#发布和订阅)
-- [发布事件](#发布事件)
-- [自动发布事件](#自动发布事件)
-- [订阅事件](#订阅事件)
-- [追踪](#追踪)
+- [追踪](#追踪) 待实现
 
 ## 安装
 
@@ -54,11 +54,20 @@ $ lile new users
 
 ```
 $ go get github.com/fghosth/lile/...
+cd lile
+go build
+cp lile /usr/local/bin
 ```
 
 您还需要安装Google的[Protocol Buffers][Protocol Buffers](https://developers.google.com/protocol-buffers/)。
 
 在MacOS你可以使用`brew install protobuf`来安装。
+
+## 安装 protoc-gen-lile-server插件
+```bash
+ cd protoc-gen-lile-server
+ cp /usr/local/bin
+```
 
 ## 创建服务
 
@@ -69,7 +78,7 @@ Lile遵循Go关于$GOPATH的约定（参见[如何写Go](https://golang.org/doc/
 如果您的Github用户名是lileio，并且您想创建一个新的服务为了发布消息到Slack，您可以使用如下命令：
 
 ```
-lile new slack
+lile new --name slack
 ```
 
 这将创建一个项目到`$GOPATH/src/github.com/lileio/slack`
@@ -312,9 +321,6 @@ ok      github.com/lileio/slack/server  0.331s  coverage: 75.0% of statements
 
 运行`serve`将运行RPC服务。
 
-### 订阅
-
-运行`subscribe`订阅者将会收到你的订阅发布事件。
 
 ### up
 
@@ -372,7 +378,7 @@ grpc_server_handling_seconds_bucket
 
 Protobuf消息自动解码。
 
-## 追踪
+## 追踪(未实现)
 
 Lile已经建立了跟踪，将[opentracing](http://opentracing.io/) 兼容的跟踪器设置为`GlobalTracer`，默认情况下，Lile报告所有gRPC方法和发布/订阅操作。
 

@@ -34,7 +34,7 @@ func main() {
 	})
 
     lile.GrpcGatewayServer(func(ctx context.Context, gwmux *runtime.ServeMux, endpoint string,dopts []grpc.DialOption) {
-    		if err := pb.RegisterHelloHttpHandlerFromEndpoint(ctx, gwmux, endpoint, dopts); err != nil {
+    		if err := {{ .Name }}.RegisterHelloHttpHandlerFromEndpoint(ctx, gwmux, endpoint, dopts); err != nil {
     			log.Println("Failed to register gw server: %v\n", err)
     		}
     	})
