@@ -3,7 +3,7 @@
 
 proto:
 	go get github.com/golang/protobuf/protoc-gen-go
-	protoc -I . HelloHttp.proto --lile-server_out=. --go_out=plugins=grpc,paths=source_relative:.  --swagger_out=logtostderr=true:. --grpc-gateway_out=logtostderr=true:.
+	protoc -I . {{ .Name }}.proto --lile-server_out=. --go_out=plugins=grpc,paths=source_relative:.  --swagger_out=logtostderr=true:. --grpc-gateway_out=logtostderr=true:.
 
 test: proto
 	go test -p 1 -v ./...
