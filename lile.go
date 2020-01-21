@@ -15,6 +15,8 @@ import (
 	"github.com/lileio/fromenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 )
 
 var (
@@ -23,6 +25,9 @@ var (
 
 // RegisterImplementation allows you to register your gRPC server
 type RegisterImplementation func(s *grpc.Server)
+
+type RegisterGrpcGatewayImpl func(ctx context.Context,mux *runtime.ServeMux,endpoint string,opt []grpc.DialOption)
+
 
 // ServerConfig is a generic server configuration
 type ServerConfig struct {
@@ -40,6 +45,11 @@ type Service struct {
 	ID   string
 	Name string
 
+	//tls
+	Cert string //文件路径
+	Key string //路文件径
+	ServerName string //tls 对应name
+
 	// Interceptors
 	UnaryInts  []grpc.UnaryServerInterceptor
 	StreamInts []grpc.StreamServerInterceptor
@@ -47,6 +57,11 @@ type Service struct {
 	// The RPC server implementation
 	GRPCImplementation RegisterImplementation
 	GRPCOptions        []grpc.ServerOption
+
+	//grpc-gateway implementation
+	GRPCGatewayOption []grpc.DialOption
+	GRPCGatewayImpl RegisterGrpcGatewayImpl
+	GRPCGatewayHeader map[string]string
 
 	// gRPC and Prometheus endpoints
 	Config           ServerConfig
@@ -97,6 +112,26 @@ func Name(n string) {
 // Server attaches the gRPC implementation to the service
 func Server(r func(s *grpc.Server)) {
 	service.GRPCImplementation = r
+}
+
+//grpc gateway server
+func GrpcGatewayServer(r func(ctx context.Context,mux *runtime.ServeMux,endpoint string,dopts []grpc.DialOption)){
+	service.GRPCGatewayImpl =r
+}
+
+// Set TLS
+func SetTLS(cert,key,serverName string){
+	service.Cert = cert
+	service.Key = key
+	service.ServerName = serverName
+}
+// add GRPCGatewayHeader
+func AddGRPCGatewayHeader(header map[string]string){
+	service.GRPCGatewayHeader = header
+}
+// add grpcGatewayOption
+func AddGRPCGatewayOption(opt grpc.DialOption){
+	service.GRPCGatewayOption = append(service.GRPCGatewayOption,opt)
 }
 // add grpcOption
 func AddGRPCOption(opt grpc.ServerOption){

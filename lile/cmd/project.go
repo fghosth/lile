@@ -30,17 +30,28 @@ func newProject(path, moduleName string) project {
 
 	cmd := f.addFolder(name)
 	cmd.addFile("main.go", "cmd_main.tmpl")
+	tls:=cmd.addFolder("keys")
+	tls.addFile("server.key","server_key.tmpl")
+	tls.addFile("server.pem","server_pem.tmpl")
 
 	cmds := cmd.addFolder("cmd")
 	cmds.addFile("root.go", "cmd_root.tmpl")
 	cmds.addFile("up.go", "cmd_up.tmpl")
 
-	f.addFile(name+".proto", "proto.tmpl")
 	f.addFile("client.go", "client.tmpl")
 	f.addFile("Makefile", "Makefile.tmpl")
 	f.addFile("Dockerfile", "Dockerfile.tmpl")
 	f.addFile("go.mod", "go-mod.tmpl")
 	f.addFile(".gitignore", "gitignore.tmpl")
+	//proto file
+	proto :=f.addFolder("proto")
+	proto.addFile(name+".proto", "proto.tmpl")
+	proto_gapi:=proto.addFolder("google").addFolder("api")
+	proto_gapi.addFile("annotations.proto","google_api_annotations.tmpl")
+	proto_gapi.addFile("http.proto","google_api_http.tmpl")
+	proto_swagger:=proto.addFolder("protoc-gen-swagger").addFolder("options")
+	proto_swagger.addFile("annotations.proto","proto_gen_swagger_annotations.tmpl")
+	proto_swagger.addFile("openapiv2.proto","proto_gen_swagger_openapiv2.tmpl")
 
 	return project{
 		ModuleName: moduleName,

@@ -6,12 +6,25 @@ import (
 	"github.com/fghosth/lile"
 	"github.com/lileio/logr"
 	"google.golang.org/grpc"
-	"{{ .ModuleName }}"
+	"{{ .ModuleName }}/proto"
 	"{{ .ModuleName }}/server"
 	"{{ .ModuleName }}/{{ .Name }}/cmd"
 )
 
 func main() {
+    header:=map[string]string{
+		"Access-Control-Allow-Headers":"x-requested-with,content-type",
+		"Access-Control-Allow-Origin":"*",
+		"Access-Control-Allow-Methods":"OPTIONS,POST,GET",
+		"content-type":"application/json",
+	}
+	cert:="./keys/server.pem"
+	key:="./keys/server.key"
+	serverName:="DSP"
+    //cert = ""
+    lile.AddGRPCGatewayHeader(header)
+    lile.SetTLS(cert,key,serverName)
+
 	logr.SetLevelFromEnv()
 	s := &server.{{ .CamelCaseName }}Server{}
 
@@ -20,6 +33,11 @@ func main() {
 		{{ .Name }}.Register{{ .CamelCaseName }}Server(g, s)
 	})
 
+    lile.GrpcGatewayServer(func(ctx context.Context, gwmux *runtime.ServeMux, endpoint string,dopts []grpc.DialOption) {
+    		if err := pb.RegisterHelloHttpHandlerFromEndpoint(ctx, gwmux, endpoint, dopts); err != nil {
+    			log.Println("Failed to register gw server: %v\n", err)
+    		}
+    	})
 
 	cmd.Execute()
 }

@@ -6,6 +6,7 @@ require (
 	github.com/golang/protobuf v1.3.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
+	github.com/grpc-ecosystem/grpc-gateway v1.12.1
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
 	github.com/iancoleman/strcase v0.0.0-20180726023541-3605ed457bf7
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
@@ -20,6 +21,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/xlab/treeprint v0.0.0-20180616005107-d6fb6747feb6
 	github.com/xtgo/set v1.0.0
+	golang.org/x/net v0.0.0-20191002035440-2ec189313ef0
 	google.golang.org/grpc v1.24.0
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 )
