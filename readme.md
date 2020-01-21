@@ -380,6 +380,6 @@ Protobuf消息自动解码。
 
 ## 追踪(未实现)
 
-Lile已经建立了跟踪，将[opentracing](http://opentracing.io/) 兼容的跟踪器设置为`GlobalTracer`，默认情况下，Lile报告所有gRPC方法和发布/订阅操作。
+Lile已经建立了跟踪，将[opentracing](http://opentracing.io/) 兼容的跟踪器设置为`GlobalTracer`。
 
 
