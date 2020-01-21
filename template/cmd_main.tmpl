@@ -6,7 +6,7 @@ import (
 	"github.com/fghosth/lile"
 	"github.com/lileio/logr"
 	"google.golang.org/grpc"
-	"{{ .ModuleName }}/proto"
+	"{{ .ModuleName }}"
 	"{{ .ModuleName }}/server"
 	"{{ .ModuleName }}/{{ .Name }}/cmd"
 )
@@ -30,12 +30,11 @@ func main() {
 
 	lile.Name("{{ .Name }}")
 	lile.Server(func(g *grpc.Server) {
-		proto.Register{{ .CamelCaseName }}Server(g, s)
-		//{{ .Name }}.Register{{ .CamelCaseName }}Server(g, s)
+		{{ .Name }}.Register{{ .CamelCaseName }}Server(g, s)
 	})
 
     lile.GrpcGatewayServer(func(ctx context.Context, gwmux *runtime.ServeMux, endpoint string,dopts []grpc.DialOption) {
-    		if err := proto.RegisterHelloHttpHandlerFromEndpoint(ctx, gwmux, endpoint, dopts); err != nil {
+    		if err := pb.RegisterHelloHttpHandlerFromEndpoint(ctx, gwmux, endpoint, dopts); err != nil {
     			log.Println("Failed to register gw server: %v\n", err)
     		}
     	})

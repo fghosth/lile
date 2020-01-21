@@ -1,11 +1,10 @@
 package server
 
 import (
-	"{{ .ModuleName }}/proto"
+	"{{ .ModuleName }}"
 )
 
 
 type {{ .CamelCaseName }}Server struct {
-	proto.{{ .CamelCaseName }}Server
-	//{{ .Name }}.{{ .CamelCaseName }}Server
+	{{ .Name }}.{{ .CamelCaseName }}Server
 }
