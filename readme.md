@@ -76,6 +76,10 @@ cp lile /usr/local/bin
  go build
  cp protoc-gen-lile-server /usr/local/bin
 ```
+### 初始化项目
+```bash
+make init
+```
 ## 生成pb文件
 ```bash
 make proto
