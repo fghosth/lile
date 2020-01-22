@@ -152,7 +152,7 @@ bool_value: true;
 
 
 // 定义Hello服务
-service HelloHttp {
+service {{ .CamelCaseName }} {
 
   // 定义SayHello方法
   rpc SayHello(HelloHttpRequest) returns (HelloHttpReply) {
