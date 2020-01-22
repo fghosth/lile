@@ -7,3 +7,7 @@ proto:
 
 test: proto
 	go test -p 1 -v ./...
+
+init: proto
+	go mod tidy
+	go mod vendor
