@@ -54,6 +54,11 @@ $ lile new --name users
 - [追踪](#追踪) 待实现
 
 ## 安装
+* mac
+```
+brew install fghosth/hex/lile
+```
+> 安装lile和protoc-gen-lile-server 插件
 
 首先，你需要确保您在您安装Lile之前已经安装了Go。
 
