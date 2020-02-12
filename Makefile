@@ -1,5 +1,11 @@
 Version := beta
 .PHONY: test statik
+build: statik
+	mkdir -p ./dist
+	go build -ldflags "-X main.Version=$(Version) -X 'main.BuildTime=`date`' -X 'main.GoVersion=`go version`'"  -o ./dist/lile ./lile
+	go build -ldflags "-X main.Version=$(Version) -X 'main.BuildTime=`date`' -X 'main.GoVersion=`go version`'"  -o ./dist/protoc-gen-lile-server ./protoc-gen-lile-server
+	tar czvf lile.tar.gz -C ./dist .
+	shasum -a 256 lile.tar.gz
 test: statik
 	go test ./... -v -count 1 -p 1 -cover
 statik:
