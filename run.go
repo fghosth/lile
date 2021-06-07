@@ -3,7 +3,15 @@ package lile
 import (
 	"context"
 	"crypto/tls"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sirupsen/logrus"
+	"github.com/soheilhy/cmux"
 	"golang.org/x/net/http2"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
 	"io/ioutil"
@@ -11,14 +19,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 )
 
 // Run is a blocking cmd to run the gRPC and metrics server.
@@ -75,8 +75,30 @@ func ServeGRPC() error {
 		if err = srv.Serve(tls.NewListener(conn, srv.TLSConfig)); err != nil {
 			logrus.Errorln("ListenAndServe: ", err)
 		}
-	}else{//自启动grpc
-		err =createGrpcServer().Serve(conn)
+	}else{//没有tls
+		ctx := context.Background()
+		gwmux := runtime.NewServeMux()
+		//dcreds, err := credentials.NewClientTLSFromFile(service.Cert, service.ServerName)
+		//if err!=nil {
+		//	return err
+		//}
+		//dopt := grpc.WithTransportCredentials(dcreds)
+		//service.GRPCGatewayOption = append(service.GRPCGatewayOption,dopt)
+
+		service.GRPCGatewayImpl(ctx,gwmux,endpoint,service.GRPCGatewayOption)
+
+		// Create a cmux.
+		m := cmux.New(conn)
+		grpcL := m.MatchWithWriters(cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
+		//err =createGrpcServer().Serve(grpcL)
+		go createGrpcServer().Serve(grpcL)
+		httpL := m.Match(cmux.HTTP1Fast())
+		httpS := &http.Server{
+			Handler: gwmux,
+		}
+		go httpS.Serve(httpL)
+		// Start serving!
+		m.Serve()
 	}
 
 
