@@ -46,8 +46,11 @@ type Service struct {
 	Name string
 
 	//tls
-	Cert string //文件路径
-	Key string //路文件径
+	ServerCert string //server文件路径
+	ServerKey string //server路文件径
+	ClientKey string //文件路径
+	ClientCert string //文件路径
+	CACert string //文件路径
 	ServerName string //tls 对应name
 
 	// Interceptors
@@ -120,9 +123,12 @@ func GrpcGatewayServer(r func(ctx context.Context,mux *runtime.ServeMux,endpoint
 }
 
 // Set TLS
-func SetTLS(cert,key,serverName string){
-	service.Cert = cert
-	service.Key = key
+func SetTLS(serverCert,serverKey,clientKey,clientCert,caCert,serverName string){
+	service.ServerCert= serverCert
+	service.ServerKey = serverKey
+	service.ClientKey= clientKey
+	service.ClientCert= clientCert
+	service.CACert = caCert
 	service.ServerName = serverName
 }
 // add GRPCGatewayHeader

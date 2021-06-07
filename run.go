@@ -19,6 +19,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"fmt"
+	"crypto/x509"
 )
 
 // Run is a blocking cmd to run the gRPC and metrics server.
@@ -46,18 +48,22 @@ func ServeGRPC() error {
 	endpoint:=service.Config.Address()
 	conn, err := net.Listen("tcp", endpoint)
 	//如果有tls信息
-	if service.Key!="" && service.Cert!="" && service.ServerName!="" {//有tls信息 grpc http同端口
+	if service.ServerKey!="" && service.ServerCert!="" && service.ClientKey!="" && service.ClientCert!="" && service.CACert!="" && service.ServerName!=""{//有tls信息 grpc http同端口
 		// gw server
 		ctx := context.Background()
 		gwmux := runtime.NewServeMux()
+		//加载客户端证书
+		cert, _ := tls.LoadX509KeyPair(service.ClientCert, service.ClientKey)
+		certPool := x509.NewCertPool()
+		ca, _ := ioutil.ReadFile(service.CACert)
+		certPool.AppendCertsFromPEM(ca)
 
-
-
-		dcreds, err := credentials.NewClientTLSFromFile(service.Cert, service.ServerName)
-		if err != nil {
-			grpclog.Fatalf("Failed to create client TLS credentials %v", err)
-		}
-		dopt := grpc.WithTransportCredentials(dcreds)
+		creds := credentials.NewTLS(&tls.Config{
+			Certificates: []tls.Certificate{cert},
+			ServerName:   service.ServerName,
+			RootCAs:      certPool,
+		})
+		dopt := grpc.WithTransportCredentials(creds)
 		service.GRPCGatewayOption = append(service.GRPCGatewayOption,dopt)
 
 		service.GRPCGatewayImpl(ctx,gwmux,endpoint,service.GRPCGatewayOption)
@@ -85,7 +91,6 @@ func ServeGRPC() error {
 		//dopt := grpc.WithTransportCredentials(dcreds)
 		//service.GRPCGatewayOption = append(service.GRPCGatewayOption,dopt)
 
-		service.GRPCGatewayImpl(ctx,gwmux,endpoint,service.GRPCGatewayOption)
 
 		// Create a cmux.
 		m := cmux.New(conn)
@@ -96,6 +101,9 @@ func ServeGRPC() error {
 		httpS := &http.Server{
 			Handler: gwmux,
 		}
+		dopt := grpc.WithInsecure()
+		service.GRPCGatewayOption = append(service.GRPCGatewayOption,dopt)
+		service.GRPCGatewayImpl(ctx,gwmux,endpoint,service.GRPCGatewayOption)
 		go httpS.Serve(httpL)
 		// Start serving!
 		m.Serve()
@@ -104,7 +112,11 @@ func ServeGRPC() error {
 
 	return err
 }
+type exampleHTTPHandler struct{}
 
+func (h *exampleHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "example http response")
+}
 // Shutdown gracefully shuts down the gRPC and metrics servers
 func Shutdown() {
 	logrus.Infof("lile: Gracefully shutting down gRPC and Prometheus")
@@ -131,11 +143,17 @@ func createGrpcServer() *grpc.Server {
 		grpc_middleware.ChainStreamServer(service.StreamInts...)))
 
 	//如果有tls信息
-	if service.Key!="" && service.Cert!="" && service.ServerName!="" {
-		creds, err := credentials.NewServerTLSFromFile(service.Cert, service.Key)
-		if err != nil {
-			logrus.Println("Failed to create server TLS credentials %v", err)
-		}
+	if service.ServerCert!="" && service.ServerKey!="" && service.ServerName!="" {
+		cert, _ := tls.LoadX509KeyPair(service.ServerCert, service.ServerKey)
+		certPool := x509.NewCertPool()
+		ca, _ := ioutil.ReadFile(service.CACert)
+		certPool.AppendCertsFromPEM(ca)
+
+		creds := credentials.NewTLS(&tls.Config{
+			Certificates: []tls.Certificate{cert},
+			ClientAuth:   tls.RequireAndVerifyClientCert,
+			ClientCAs:    certPool,
+		})
 		AddGRPCOption(grpc.Creds(creds))
 	}
 
@@ -170,8 +188,8 @@ func startPrometheusServer() {
 }
 
 func getTLSConfig() *tls.Config {
-	cert, _ := ioutil.ReadFile(service.Cert)
-	key, _ := ioutil.ReadFile(service.Key)
+	cert, _ := ioutil.ReadFile(service.ServerCert)
+	key, _ := ioutil.ReadFile(service.ServerKey)
 	var KeyPair *tls.Certificate
 	pair, err := tls.X509KeyPair(cert, key)
 	if err != nil {
