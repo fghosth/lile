@@ -104,6 +104,12 @@ func GlobalService() *Service {
 	return service
 }
 
+//修改host,port
+func SetAddress(host string,port int){
+	service.Config.Host = host
+	service.Config.Port = port
+}
+
 // Name sets the name for the service
 func Name(n string) {
 	service.ID = generateID(n)
