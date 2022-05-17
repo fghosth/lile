@@ -1,0 +1,47 @@
+package main
+
+import (
+	_ "net/http/pprof"
+
+	"github.com/fghosth/lile"
+	"github.com/lileio/logr"
+	"google.golang.org/grpc"
+	"{{ .ModuleName }}"
+	"{{ .ModuleName }}/server"
+	"{{ .ModuleName }}/{{ .Name }}/cmd"
+
+	"context"
+    "log"
+    "github.com/grpc-ecosystem/grpc-gateway/runtime"
+)
+
+func main() {
+    header:=map[string]string{
+		"Access-Control-Allow-Headers":"x-requested-with,content-type",
+		"Access-Control-Allow-Origin":"*",
+		"Access-Control-Allow-Methods":"OPTIONS,POST,GET",
+		"content-type":"application/json",
+	}
+	cert:="./keys/server.pem"
+	key:="./keys/server.key"
+	serverName:="DSP"
+    //cert = ""
+    lile.AddGRPCGatewayHeader(header)
+    lile.SetTLS(cert,key,serverName)
+
+	logr.SetLevelFromEnv()
+	s := &server.{{ .CamelCaseName }}Server{}
+
+	lile.Name("{{ .Name }}")
+	lile.Server(func(g *grpc.Server) {
+		{{ .Name }}.Register{{ .CamelCaseName }}Server(g, s)
+	})
+
+    lile.GrpcGatewayServer(func(ctx context.Context, gwmux *runtime.ServeMux, endpoint string,dopts []grpc.DialOption) {
+    		if err := {{ .Name }}.Register{{ .CamelCaseName }}HandlerFromEndpoint(ctx, gwmux, endpoint, dopts); err != nil {
+    			log.Println("Failed to register gw server: %v\n", err)
+    		}
+    	})
+
+	cmd.Execute()
+}
