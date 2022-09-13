@@ -6,7 +6,7 @@ Lile主要是用于过创建基本结构，测试示例，Dockerfile，Makefile�
 Lile也是一个简单的服务生成器，扩展了基本的gRPC服务器，包括诸如指标（如[Prometheus](prometheus.io)）。
 
 ### 功能如下：
-* 根据proto文件自动生成服务端代码及单元测试
+* 根据proto文件自动生成服务端代码及单元测试1
 * tls模式下同一端口https，grpc可同时访问
 * 如果有定义grpc-gateway相关，可生成swagger文档
 * 链路追踪
@@ -283,7 +283,7 @@ func (s SlackServer) Announce(ctx context.Context, r *slack.AnnounceRequest) (*e
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
-
+   
 	return &empty.Empty{}, nil
 }
 ```
