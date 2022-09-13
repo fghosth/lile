@@ -2,9 +2,16 @@
 .PHONY: proto test
 
 proto:
-	go get github.com/golang/protobuf/protoc-gen-go
-	protoc -I . {{ .Name }}.proto --lile-server_out=. --go_out=plugins=grpc,paths=source_relative:.  --swagger_out=logtostderr=true:. --grpc-gateway_out=logtostderr=true:.
-
+	protoc --openapiv2_out . --openapiv2_opt logtostderr=true \
+               --openapiv2_opt allow_merge=true \
+        	   -I . \
+        	   --lile-server_out=. \
+        	   --go_out=paths=source_relative:. \
+        	   --go-grpc_out=paths=source_relative:. \
+        	   --grpc-gateway_out paths=source_relative:. \
+        	   --grpc-gateway_opt logtostderr=true \
+        	   --grpc-gateway_opt generate_unbound_methods=true \
+        	   {{ .Name }}.proto
 test: proto
 	go test -p 1 -v ./...
 
