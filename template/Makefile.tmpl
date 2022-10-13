@@ -11,6 +11,7 @@ proto:
         	   --grpc-gateway_out paths=source_relative:. \
         	   --grpc-gateway_opt logtostderr=true \
         	   --grpc-gateway_opt generate_unbound_methods=true \
+        	   --validate_out="lang=go,paths=source_relative:." \
         	   {{ .Name }}.proto
 test: proto
 	go test -p 1 -v ./...
