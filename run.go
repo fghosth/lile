@@ -10,6 +10,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/tmc/grpc-websocket-proxy/wsproxy"
 	"github.com/sirupsen/logrus"
 	"github.com/soheilhy/cmux"
 	"golang.org/x/net/http2"
@@ -77,7 +78,7 @@ func ServeGRPC() error {
 		//}else{
 		//	h = headerHandler(gwmux)
 		//}
-		h = headerHandler(gwmux)
+		h = headerHandler(wsproxy.WebsocketProxy(gwmux))
 		mux.Handle("/", h)
 		grpcServer:= createGrpcServer()
 		srv := &http.Server{
@@ -113,7 +114,7 @@ func ServeGRPC() error {
 		//}else{
 		//	h = headerHandler(gwmux)
 		//}
-		h = headerHandler(gwmux)
+		h = headerHandler(wsproxy.WebsocketProxy(gwmux))
 		httpS := &http.Server{
 			Handler: h,
 		}
